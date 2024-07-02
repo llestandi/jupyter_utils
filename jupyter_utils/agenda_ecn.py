@@ -1,11 +1,12 @@
 # Import necessary libraries
 import pandas as pd
-from icalendar import Calendar
+from icalendar import Calendar, Event
 from datetime import datetime, time
 from datetime import datetime, timedelta
 import calendar
 import pytz
 import openpyxl
+import re
 
 def read_ics(file_path: str):
     """
@@ -262,9 +263,9 @@ def extract_schedule_1sheet_format(file_path,
         dtend=   tz.localize(date.replace(hour=class_slots[slot][1][0],minute=class_slots[slot][1][1]))#converting to date object
 
         if display_group_schedule: 
-            print(date.strftime("%a %d/%m/%y"),f"{slot} {occ[2]}")
+            print(date.strftime("%a %d/%m/%y"),f"{slot} {clean_text(occ[2])}")
             
-        events.append({ 'summary': occ[2],
+        events.append({ 'summary': clean_text(occ[2]),
                         'dtstart': dtstart,
                         'dtend': dtend})
     return events
@@ -305,6 +306,13 @@ def find_conflicting_events(combined_df):
     # Convert the list of conflicts to a DataFrame
     conflicts_df = pd.DataFrame(conflicts)
     return conflicts_df
+
+def clean_text(text):
+    # Replace newline, tab, and carriage return with a space
+    text = text.replace('\n', ' ').replace('\t', ' ').replace('\r', ' ')
+    # Replace multiple spaces with a single space
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
 
 def df_to_ics(df, output_file):
     """
