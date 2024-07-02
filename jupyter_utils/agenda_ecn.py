@@ -195,9 +195,9 @@ def extract_schedule_by_group_EI1(file_path : str,
         dtend= tz.localize(datetime.strptime(date+" "+class_slots[slot][1],'%d/%m/%y %H:%M'))#converting to date object
 
         if display_group_schedule: 
-            print(f"{wbook[occ[0]][date_pos].value.split()[0]:<8} {date} {slot} {occ[2]}")
+            print(f"{wbook[occ[0]][date_pos].value.split()[0]:<8} {date} {slot} {occ[2]}\tGrp {group_name}")
             
-        events.append({ 'summary': occ[2],
+        events.append({ 'summary': occ[2]+f" Grp {group_name}",
                         'dtstart': dtstart,
                         'dtend': dtend})
     return events
