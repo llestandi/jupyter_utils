@@ -40,7 +40,8 @@ def translate_CLI():
     $ translate_notebook path/to/your_notebook.ipynb --input_language fr --output_language en
     """
     parser = argparse.ArgumentParser(
-        description="Translate Markdown content in a Jupyter notebook while preserving formatting."
+        description="""Translate Markdown content in a Jupyter notebook while preserving formatting. Don't forget to start the translation docker before running 
+        \n $ docker run -ti --rm -p  5000:5000 libretranslate/libretranslate"""
     )
     
     parser.add_argument(
@@ -110,7 +111,7 @@ def translate_notebook(notebook_path,
         nb = nbformat.read(f, as_version=4)
 
     #Add warning in first cell
-    warning=f'<div class="alert alert-danger"> <p> <b>This notebook has been translated automatically from{input_language}</b> You can access the original text of each cell in metadata.</p>'
+    warning=f'<div class="alert alert-danger"> <p> <b>This notebook has been translated automatically from {input_language}.</b> You can access the original text of each cell in metadata.</p>'
     warning_cell = nbformat.v4.new_markdown_cell(warning)
     nb.cells.insert(0, warning_cell)
     
@@ -193,18 +194,19 @@ def preprocess_text(text, placeholders):
     """function to extract and replace text that we do not want translated (specifically anything between ``` and ``` code blocks)
     """
     # placeholder pattern (you can customize this)
-    pattern = r'```(.*?)```'
+    pattern = r'\s*```(.*?)\s*```'
     matches = re.findall(pattern, text, re.DOTALL)
     for i, match in enumerate(matches):
         placeholder = f'__PLACEHOLDER_{i}__'
         placeholders[placeholder] = match
-        text = text.replace(f'```{match}```', placeholder)
+        print(match)
+        text = text.replace(match, placeholder)
     return text
 
 # function to reinsert the original segments back into the text
 def postprocess_text(translated_text, placeholders):
     for placeholder, original_text in placeholders.items():
-        translated_text = translated_text.replace(placeholder, f'```{original_text}```')
+        translated_text = translated_text.replace(placeholder, original_text)
         #translated_text = translated_text.replace(placeholder, '[NO_TRANSLATE]' + original_text + '[/NO_TRANSLATE]')
     return translated_text
 

@@ -1,10 +1,58 @@
-import nbformat
-import argparse
+"""
+Notebook Student Export Module
+
+This module provides functionality to create a student-friendly version of a Jupyter notebook 
+by removing solution cells and optionally keeping their output. The processed notebook can be 
+exported to different formats like HTML, PDF (via HTML or LaTeX), and YAML configuration files.
+
+Main Features
+-------------
+- Remove solution cells from a Jupyter notebook, keeping or discarding their output.
+- Export the cleaned notebook to HTML format, PDF (via HTML or LaTeX), or YAML for styling metadata.
+- Command-line interface (CLI) for easy use, allowing users to pass various export options.
+
+Functions
+---------
+- export_CLI(): 
+    Command-line interface parser to handle the notebook export process.
+    
+- remove_solution_cells(notebook_path, output_path):
+    Removes cells tagged with "solution" from the notebook, creating a cleaned version for students.
+
+- notebook_student_export(notebook_path, output_path, keep_output=False, export_HTML=False, export_YAML=False, export_PDF=False, export_PDF_latex=False):
+    Main function that processes the notebook to create a student version and exports it to various formats.
+
+- YAML_update(cell, to_pdf=False):
+    Updates YAML metadata in the first cell of the notebook, which can be used for styling or LaTeX formatting.
+
+CLI Usage
+---------
+The module can be run from the command line with arguments to customize the export options. 
+For example:
+    $ python student_notebook_export.py notebook_with_solutions.ipynb --keep_output --export_HTML
+or after installing the package:
+    $ student_notebook_export notebook_with_solutions.ipynb --keep_output --export_HTML
+
+Dependencies
+------------
+- nbconvert
+- nbformat
+- argparse
+- subprocess
+- yaml
+"""
+
 import os
+import subprocess
+import argparse
+
 from datetime import datetime
 from nbconvert import HTMLExporter, PDFExporter
 import yaml
-import subprocess
+
+import nbformat
+
+
 
 def export_CLI():
     """
@@ -16,14 +64,14 @@ def export_CLI():
     $ student_notebook_export notebook_with_solutions.ipynb --keep_output --export_HTML
     """
     parser = argparse.ArgumentParser(description="Create a student version of a Jupyter Notebook without solution cells.")
-    parser.add_argument("input", 
+    parser.add_argument("input",
                         help="Path to the notebook with solutions")
-    parser.add_argument("--keep_output", 
+    parser.add_argument("--keep_output",
                         help="Keep the output for solution code cells", action="store_true")
-    parser.add_argument("--export_HTML", 
-                        help="Export the notebook to HTML to the same directory with the same name as the output notebook", 
+    parser.add_argument("--export_HTML",
+                        help="Export the notebook to HTML to the same directory with the same name as the output notebook",
                         action=argparse.BooleanOptionalAction)
-    parser.add_argument("--export_YAML", 
+    parser.add_argument("--export_YAML",
                         help="updates_yaml for styling PDF and/or HTML", 
                         action="store_true")
     parser.add_argument("--export_PDF", 
